@@ -19,9 +19,12 @@ function ProductCard({ product }) {
   }).format(product.price || 0);
 
   const handleImageError = (e) => {
+    const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const backendBase = isProd ? 'https://elite-bats-api.onrender.com' : 'http://localhost:5000';
+
     if (!e.target.dataset.triedFallback && product.image && product.image.startsWith('/uploads')) {
       e.target.dataset.triedFallback = 'true';
-      e.target.src = `http://localhost:5000${product.image}`;
+      e.target.src = `${backendBase}${product.image}`;
     } else {
       setImageFailed(true);
     }

@@ -40,9 +40,12 @@ function ProductDetails() {
   }, [id]);
 
   const handleImageError = (e) => {
+    const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const backendBase = isProd ? 'https://elite-bats-api.onrender.com' : 'http://localhost:5000';
+
     if (!e.target.dataset.triedFallback && product.image && product.image.startsWith('/uploads')) {
       e.target.dataset.triedFallback = 'true';
-      e.target.src = `http://localhost:5000${product.image}`;
+      e.target.src = `${backendBase}${product.image}`;
     } else {
       setImageFailed(true);
     }
@@ -82,7 +85,6 @@ function ProductDetails() {
           <h2 className="not-found-title">Product Not Found</h2>
           <p className="not-found-message">
             Sorry, we could not find a cricket bat matching the ID &ldquo;{id}&rdquo;.
-            It may have been discontinued or the link is incorrect.
           </p>
           <Link to="/shop" className="back-to-shop-btn">
             ← Back to Shop
