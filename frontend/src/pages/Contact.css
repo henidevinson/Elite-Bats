@@ -1,0 +1,306 @@
+/* ==========================================================================
+   Elite Bats - Contact & Consultation Page Styles
+   ========================================================================== */
+
+.contact-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+  width: 100%;
+}
+
+/* Header Section */
+.contact-header {
+  text-align: center;
+  margin-bottom: 2.75rem;
+}
+
+.contact-tag {
+  color: #cda35f;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1.2px;
+}
+
+.contact-title {
+  font-size: 2.5rem;
+  color: #0b0c0e;
+  font-weight: 800;
+  margin: 0.35rem 0 0.65rem;
+}
+
+.contact-subtitle {
+  color: #64748b;
+  font-size: 1.05rem;
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Primary WhatsApp Quick Banner */
+.contact-highlight-banner {
+  background: linear-gradient(135deg, #0b0c0e 0%, #15181e 100%);
+  border: 2px solid #cda35f;
+  border-radius: 12px;
+  padding: 2.25rem 2rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 10px 25px rgba(11, 12, 14, 0.15);
+}
+
+.highlight-banner-text h3 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+  color: #ffffff;
+}
+
+.highlight-banner-text p {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.btn-whatsapp-hero {
+  background-color: #25d366 !important;
+  color: #ffffff !important;
+  font-weight: 800;
+  padding: 0.9rem 1.75rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  white-space: nowrap;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.btn-whatsapp-hero:hover {
+  background-color: #20ba5a !important;
+  transform: translateY(-2px);
+}
+
+/* 4-Column Contact Channel Cards */
+.contact-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 3.5rem;
+}
+
+.contact-channel-card {
+  background-color: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.contact-channel-card:hover {
+  border-color: #cda35f;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(11, 12, 14, 0.08);
+}
+
+.channel-icon-bubble {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin-bottom: 1.15rem;
+}
+
+.bubble-phone {
+  background-color: rgba(11, 12, 14, 0.08);
+  border: 1px solid rgba(11, 12, 14, 0.2);
+}
+
+.bubble-whatsapp {
+  background-color: rgba(37, 211, 102, 0.12);
+  border: 1px solid rgba(37, 211, 102, 0.3);
+}
+
+.bubble-email {
+  background-color: rgba(205, 163, 95, 0.15);
+  border: 1px solid rgba(205, 163, 95, 0.4);
+}
+
+.bubble-instagram {
+  background-color: rgba(225, 48, 108, 0.1);
+  border: 1px solid rgba(225, 48, 108, 0.3);
+}
+
+.channel-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0b0c0e;
+  margin-bottom: 0.35rem;
+}
+
+.channel-subtext {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 1.25rem;
+  line-height: 1.4;
+  flex: 1;
+}
+
+/* Symmetrical Action Buttons */
+.btn-channel-action {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-phone-action {
+  background-color: #0b0c0e;
+  color: #ffffff;
+  border: 1px solid #cda35f;
+}
+
+.btn-phone-action:hover {
+  background-color: #cda35f;
+  color: #0b0c0e;
+}
+
+.btn-whatsapp-action {
+  background-color: #25d366;
+  color: #ffffff;
+}
+
+.btn-whatsapp-action:hover {
+  background-color: #20ba5a;
+}
+
+.btn-email-action {
+  background-color: #0b0c0e;
+  color: #ffffff;
+  border: 1px solid #0b0c0e;
+}
+
+.btn-email-action:hover {
+  background-color: #cda35f;
+  color: #0b0c0e;
+  border-color: #cda35f;
+}
+
+.btn-instagram-action {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: #ffffff;
+}
+
+.btn-instagram-action:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+/* Store & Workshop Information Box */
+.workshop-info-card {
+  background-color: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+}
+
+.workshop-header {
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 1rem;
+  margin-bottom: 1.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.workshop-header h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0b0c0e;
+}
+
+.workshop-badge {
+  background-color: #fbf8f2;
+  color: #8f6626;
+  border: 1px solid #cda35f;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.workshop-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.workshop-item-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #cda35f;
+  letter-spacing: 0.6px;
+  margin-bottom: 0.4rem;
+}
+
+.workshop-item-desc {
+  font-size: 0.95rem;
+  color: #111827;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .contact-highlight-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+  .btn-whatsapp-hero {
+    width: 100%;
+    justify-content: center;
+  }
+  .contact-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .workshop-details-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .contact-title {
+    font-size: 2.1rem;
+  }
+  .contact-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .workshop-info-card {
+    padding: 1.5rem;
+  }
+}

@@ -1,0 +1,413 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4.5rem;
+  padding-bottom: 4rem;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, #0b0c0e 0%, #15181e 100%);
+  color: #ffffff;
+  padding: 5rem 1.5rem;
+  border-bottom: 3px solid var(--brand-gold);
+}
+
+.hero-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  align-items: center;
+  gap: 3.5rem;
+}
+
+.hero-badge {
+  display: inline-block;
+  background-color: var(--brand-gold-tint);
+  color: var(--brand-gold);
+  border: 1.5px solid var(--brand-gold);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 1.25rem;
+}
+
+.hero-title {
+  font-size: 2.9rem;
+  font-weight: 800;
+  line-height: 1.18;
+  margin-bottom: 1.25rem;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.hero-title span {
+  color: var(--brand-gold);
+}
+
+.hero-description {
+  font-size: 1.1rem;
+  color: #cbd5e1;
+  line-height: 1.65;
+  margin-bottom: 2rem;
+  max-width: 580px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.btn-primary {
+  background-color: var(--brand-gold) !important;
+  color: var(--brand-black) !important;
+  padding: 0.85rem 1.75rem;
+  border-radius: var(--radius-sm);
+  font-weight: 800;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(205, 163, 95, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--brand-gold-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(205, 163, 95, 0.45);
+}
+
+.btn-secondary {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  padding: 0.85rem 1.75rem;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--brand-gold) !important;
+  color: var(--brand-gold) !important;
+  background-color: var(--brand-gold-tint) !important;
+}
+
+/* Hero Showcase Card */
+.hero-visual-card {
+  background: #0a0a0a !important;
+  border: 1.5px solid var(--brand-gold) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 2.5rem 1.75rem !important;
+  text-align: center !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(205, 163, 95, 0.15) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.hero-logo-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  width: 100%;
+}
+
+.hero-logo-img {
+  height: 125px;
+  max-height: 135px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+  display: block;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 4px 14px rgba(205, 163, 95, 0.3));
+}
+
+.hero-visual-title {
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.hero-visual-subtitle {
+  font-size: 0.92rem !important;
+  color: var(--brand-gold) !important;
+  font-weight: 600 !important;
+  line-height: 1.5 !important;
+  max-width: 320px !important;
+  margin: 0 auto !important;
+}
+
+/* Section Wrapper & Uniform Headings */
+.section-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  width: 100%;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 2.75rem;
+}
+
+.section-tag {
+  color: var(--brand-gold);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1.2px;
+}
+
+.section-title {
+  font-size: 2.3rem;
+  color: var(--brand-black);
+  font-weight: 800;
+  margin: 0.35rem 0 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.section-subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Products Grid */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+/* Why Choose Us Cards */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.feature-card {
+  background-color: #ffffff;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 2rem 1.35rem;
+  text-align: center;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.feature-card:hover {
+  border-color: var(--brand-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(11, 12, 14, 0.05);
+}
+
+.feature-icon-box {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1.15rem;
+  background-color: var(--brand-gold-tint);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  border: 1px solid var(--brand-gold-border);
+}
+
+.feature-title {
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: var(--brand-black);
+  margin-bottom: 0.5rem;
+}
+
+.feature-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+/* Call to Action Banner */
+.cta-banner {
+  background: linear-gradient(135deg, #0b0c0e 0%, #171b22 100%);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--brand-gold);
+  padding: 3rem 2.5rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.cta-text h3 {
+  font-size: 1.95rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.cta-text p {
+  color: #cbd5e1;
+  font-size: 1rem;
+  max-width: 600px;
+}
+
+.cta-actions {
+  display: flex;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.btn-whatsapp-large {
+  background-color: var(--whatsapp-green) !important;
+  color: #ffffff !important;
+  font-weight: 800;
+  padding: 0.85rem 1.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.btn-whatsapp-large:hover {
+  background-color: var(--whatsapp-hover) !important;
+  transform: translateY(-2px);
+}
+
+/* Store Contact Summary Card */
+.contact-summary-card {
+  background-color: #ffffff;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 2.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.contact-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.contact-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.contact-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.contact-val {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--brand-black);
+}
+
+.contact-val a:hover {
+  color: var(--brand-gold);
+}
+
+/* Feedback Box (Loading, Error, Empty) */
+.featured-feedback-box {
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.featured-error-card {
+  border-color: #fecaca;
+  background-color: #fff5f5;
+}
+
+.featured-spinner {
+  width: 38px;
+  height: 38px;
+  border: 3.5px solid var(--border-subtle);
+  border-top-color: var(--brand-gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 992px) {
+  .hero-wrapper {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .hero-actions {
+    justify-content: center;
+  }
+  .products-grid,
+  .features-grid,
+  .contact-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cta-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-title {
+    font-size: 2.2rem;
+  }
+  .products-grid,
+  .features-grid,
+  .contact-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero-actions,
+  .cta-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .btn-primary,
+  .btn-secondary,
+  .btn-whatsapp-large {
+    width: 100%;
+    justify-content: center;
+  }
+}
