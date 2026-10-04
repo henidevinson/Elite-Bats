@@ -42,7 +42,7 @@ function AdminLogin() {
       }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Invalid credentials or server error.');
+        throw new Error(data.error || 'Invalid credentials.');
       }
 
       localStorage.setItem('adminToken', data.token);

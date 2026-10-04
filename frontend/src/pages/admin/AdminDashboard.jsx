@@ -2,6 +2,45 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
 
+// Client-side image compression that converts any uploaded image into a lightweight Base64 string directly stored in SQLite!
+function compressImageToBase64(file, maxWidth = 800, maxHeight = 800, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+}
+
 function AdminDashboard() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -22,17 +61,16 @@ function AdminDashboard() {
     weight: '1180g - 1200g',
     availability: 'In Stock',
     shortDescription: '',
-    description: ''
+    description: '',
+    image: ''
   });
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
-  const [previewError, setPreviewError] = useState(false);
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Helper to fetch stored authentication token
   const getAuthHeader = () => {
     const token = localStorage.getItem('adminToken');
     return token ? { 'Authorization': `Bearer ${token}` } : {};
@@ -91,11 +129,11 @@ function AdminDashboard() {
       weight: '1180g - 1200g',
       availability: 'In Stock',
       shortDescription: '',
-      description: ''
+      description: '',
+      image: ''
     });
     setSelectedFile(null);
     setPreviewUrl('');
-    setPreviewError(false);
     setRemoveExistingImage(false);
     setFormError('');
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -113,31 +151,39 @@ function AdminDashboard() {
       weight: bat.weight || '',
       availability: bat.availability || 'In Stock',
       shortDescription: bat.shortDescription || '',
-      description: bat.description || ''
+      description: bat.description || '',
+      image: bat.image || ''
     });
     setSelectedFile(null);
     setPreviewUrl(bat.image || '');
-    setPreviewError(false);
     setRemoveExistingImage(false);
     setFormError('');
     if (fileInputRef.current) fileInputRef.current.value = '';
     setModalOpen(true);
   };
 
-  const handleFileChange = (e) => {
+  // Convert uploaded image into a Base64 string so it stays in the database forever
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      setPreviewError(false);
-      setRemoveExistingImage(false);
+      if (file.size > 5 * 1024 * 1024) {
+        setFormError('Image must be under 5MB.');
+        return;
+      }
+      try {
+        const compressedBase64 = await compressImageToBase64(file);
+        setSelectedFile(file);
+        setPreviewUrl(compressedBase64);
+        setRemoveExistingImage(false);
+      } catch {
+        setFormError('Failed to process image.');
+      }
     }
   };
 
   const handleRemoveImage = () => {
     setSelectedFile(null);
     setPreviewUrl('');
-    setPreviewError(false);
     setRemoveExistingImage(true);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -161,22 +207,19 @@ function AdminDashboard() {
 
     setSubmitting(true);
 
-    const data = new FormData();
-    data.append('name', formData.name.trim());
-    data.append('brand', formData.brand.trim());
-    data.append('price', String(formData.price).trim());
-    data.append('willowType', formData.willowType);
-    data.append('weight', formData.weight || '');
-    data.append('availability', formData.availability);
-    data.append('shortDescription', formData.shortDescription || '');
-    data.append('description', formData.description || '');
-
-    if (selectedFile) {
-      data.append('image', selectedFile);
-    }
-    if (removeExistingImage) {
-      data.append('removeImage', 'true');
-    }
+    const payload = {
+      name: formData.name.trim(),
+      brand: formData.brand.trim(),
+      price: String(formData.price).trim(),
+      willowType: formData.willowType,
+      weight: formData.weight || '',
+      availability: formData.availability,
+      shortDescription: formData.shortDescription || '',
+      description: formData.description || '',
+      // Direct database-stored image
+      image: removeExistingImage ? '' : previewUrl || formData.image || '',
+      removeImage: removeExistingImage ? 'true' : 'false'
+    };
 
     const url = isEditing ? `/api/products/${formData.id}` : '/api/products';
     const method = isEditing ? 'PUT' : 'POST';
@@ -184,8 +227,11 @@ function AdminDashboard() {
     try {
       const response = await fetch(url, {
         method,
-        headers: getAuthHeader(), // Attached Bearer Token
-        body: data
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader()
+        },
+        body: JSON.stringify(payload)
       });
 
       if (response.status === 401 || response.status === 403) {
@@ -194,14 +240,7 @@ function AdminDashboard() {
         return;
       }
 
-      const text = await response.text();
-      let resJson = {};
-      try {
-        resJson = text ? JSON.parse(text) : {};
-      } catch {
-        throw new Error('Server error occurred.');
-      }
-
+      const resJson = await response.json();
       if (!response.ok) {
         throw new Error(resJson.error || 'Failed to save product.');
       }
@@ -221,7 +260,7 @@ function AdminDashboard() {
     try {
       const res = await fetch(`/api/products/${id}`, {
         method: 'DELETE',
-        headers: getAuthHeader() // Attached Bearer Token
+        headers: getAuthHeader()
       });
 
       if (res.status === 401 || res.status === 403) {
@@ -230,12 +269,7 @@ function AdminDashboard() {
         return;
       }
 
-      const text = await res.text();
-      let resJson = {};
-      try {
-        resJson = text ? JSON.parse(text) : {};
-      } catch {}
-
+      const resJson = await res.json().catch(() => ({}));
       if (res.ok) {
         fetchProducts();
       } else {
@@ -243,18 +277,6 @@ function AdminDashboard() {
       }
     } catch {
       alert('Network error while deleting product.');
-    }
-  };
-
-  const handleTableImgError = (e, batImage) => {
-    if (!e.target.dataset.triedFallback && batImage && batImage.startsWith('/uploads')) {
-      e.target.dataset.triedFallback = 'true';
-      e.target.src = `http://localhost:5000${batImage}`;
-    } else {
-      e.target.style.display = 'none';
-      if (e.target.nextElementSibling) {
-        e.target.nextElementSibling.style.display = 'flex';
-      }
     }
   };
 
@@ -305,7 +327,7 @@ function AdminDashboard() {
             <span className="admin-stat-number" style={{ fontSize: '1.15rem' }}>
               SQLite
             </span>
-            <span className="admin-stat-label">Storage Engine</span>
+            <span className="admin-stat-label">Database Storage</span>
           </div>
         </div>
 
@@ -362,15 +384,11 @@ function AdminDashboard() {
                   <tr key={bat.id}>
                     <td className="col-thumb">
                       {bat.image && bat.image.trim() !== '' ? (
-                        <>
-                          <img
-                            src={bat.image}
-                            alt={bat.name}
-                            className="admin-thumb-img"
-                            onError={(e) => handleTableImgError(e, bat.image)}
-                          />
-                          <div className="admin-thumb-fallback" style={{ display: 'none' }}>🏏</div>
-                        </>
+                        <img
+                          src={bat.image}
+                          alt={bat.name}
+                          className="admin-thumb-img"
+                        />
                       ) : (
                         <div className="admin-thumb-fallback">🏏</div>
                       )}
@@ -540,22 +558,22 @@ function AdminDashboard() {
                 </div>
               </div>
 
+              {/* Image Upload Box - Saved Directly to Database */}
               <div className="image-upload-box">
                 <span className="image-upload-header">
-                  Product Image (JPG, PNG, WEBP &bull; Max 5MB)
+                  Product Image (JPG, PNG, WEBP &bull; Max 5MB &bull; Stored in Database)
                 </span>
 
-                {previewUrl && !previewError ? (
+                {previewUrl ? (
                   <div className="image-preview-wrapper">
                     <img
                       src={previewUrl}
                       alt="Preview"
                       className="image-preview-img"
-                      onError={() => setPreviewError(true)}
                     />
                     <div className="image-preview-actions">
                       <span className="image-preview-meta">
-                        {selectedFile ? `Selected: ${selectedFile.name}` : 'Current Product Image'}
+                        {selectedFile ? `Selected: ${selectedFile.name}` : 'Current Image in Database'}
                       </span>
                       <button
                         type="button"

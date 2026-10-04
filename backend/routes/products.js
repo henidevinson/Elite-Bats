@@ -5,23 +5,27 @@ import { requireAdminAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Helper to strip HTML tags and prevent stored XSS
 function sanitizeText(str) {
   if (!str || typeof str !== 'string') return '';
   return str.replace(/<[^>]*>?/gm, '').trim();
 }
 
-// Helper to validate safe image URLs/paths (blocks javascript: schemes)
 function isSafeImagePath(pathStr) {
   if (!pathStr || typeof pathStr !== 'string') return true;
   const trimmed = pathStr.trim().toLowerCase();
-  if (trimmed.startsWith('javascript:') || trimmed.startsWith('data:') || trimmed.startsWith('vbscript:')) {
+  if (trimmed.startsWith('javascript:') || trimmed.startsWith('vbscript:')) {
     return false;
   }
-  return trimmed.startsWith('/uploads/') || trimmed.startsWith('https://') || trimmed.startsWith('http://');
+  // Allow data:image (direct database storage), /uploads/, or https://
+  return (
+    trimmed.startsWith('data:image/') ||
+    trimmed.startsWith('/uploads/') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('http://')
+  );
 }
 
-// GET all products (Public)
+// GET all products
 router.get('/', (req, res) => {
   try {
     const products = db.prepare('SELECT * FROM products ORDER BY createdAt DESC').all();
@@ -31,7 +35,7 @@ router.get('/', (req, res) => {
   }
 });
 
-// GET single product (Public)
+// GET single product
 router.get('/:id', (req, res) => {
   try {
     const product = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
@@ -44,7 +48,7 @@ router.get('/:id', (req, res) => {
   }
 });
 
-// POST create product (Protected by requireAdminAuth)
+// POST create product (Protected)
 router.post('/', requireAdminAuth, (req, res) => {
   upload.single('image')(req, res, (err) => {
     if (err) return res.status(400).json({ error: err.message });
@@ -59,25 +63,19 @@ router.post('/', requireAdminAuth, (req, res) => {
         description = '',
         weight = '',
         willowType = 'English Willow',
-        availability = 'In Stock'
+        availability = 'In Stock',
+        image = ''
       } = req.body || {};
 
       const cleanName = sanitizeText(name);
       const cleanBrand = sanitizeText(brand);
 
-      if (!cleanName) {
-        if (req.file) deleteLocalImage(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ error: 'Product name is required.' });
-      }
-      if (!cleanBrand) {
-        if (req.file) deleteLocalImage(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ error: 'Brand is required.' });
-      }
+      if (!cleanName) return res.status(400).json({ error: 'Product name is required.' });
+      if (!cleanBrand) return res.status(400).json({ error: 'Brand is required.' });
 
       const numPrice = Number(price);
-      if (price === undefined || price === null || String(price).trim() === '' || isNaN(numPrice) || numPrice < 0 || numPrice > 500000) {
-        if (req.file) deleteLocalImage(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ error: 'Please enter a valid price between ₹0 and ₹5,00,000.' });
+      if (price === undefined || price === null || String(price).trim() === '' || isNaN(numPrice) || numPrice < 0) {
+        return res.status(400).json({ error: 'Please enter a valid price.' });
       }
 
       const allowedWillow = ['English Willow', 'Kashmir Willow'];
@@ -86,10 +84,19 @@ router.post('/', requireAdminAuth, (req, res) => {
       const allowedStock = ['In Stock', 'Out of Stock'];
       const validatedStock = allowedStock.includes(availability) ? availability : 'In Stock';
 
-      const imagePath = req.file ? `/uploads/${req.file.filename}` : sanitizeText(req.body.image);
-      if (!isSafeImagePath(imagePath)) {
-        if (req.file) deleteLocalImage(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ error: 'Invalid image format or protocol.' });
+      // 1. If uploaded as Base64 Data URI, store directly in database.
+      // 2. If uploaded as file, store relative /uploads/ path.
+      let finalImage = '';
+      if (typeof image === 'string' && image.startsWith('data:image/')) {
+        finalImage = image; // Stored directly in the database row forever!
+      } else if (req.file) {
+        finalImage = `/uploads/${req.file.filename}`;
+      } else if (typeof image === 'string') {
+        finalImage = sanitizeText(image);
+      }
+
+      if (!isSafeImagePath(finalImage)) {
+        return res.status(400).json({ error: 'Invalid image format.' });
       }
 
       const safeId = id && String(id).trim() ? sanitizeText(id).slice(0, 50) : `bat-${Date.now()}`;
@@ -113,19 +120,18 @@ router.post('/', requireAdminAuth, (req, res) => {
         safeWeight,
         validatedWillow,
         validatedStock,
-        imagePath
+        finalImage
       );
 
       const created = db.prepare('SELECT * FROM products WHERE id = ?').get(safeId);
       res.status(201).json({ message: 'Product created successfully', product: created });
     } catch (error) {
-      if (req.file) deleteLocalImage(`/uploads/${req.file.filename}`);
       res.status(500).json({ error: 'Failed to create product: ' + error.message });
     }
   });
 });
 
-// PUT update product (Protected by requireAdminAuth)
+// PUT update product (Protected)
 router.put('/:id', requireAdminAuth, (req, res) => {
   upload.single('image')(req, res, (err) => {
     if (err) return res.status(400).json({ error: err.message });
@@ -135,7 +141,6 @@ router.put('/:id', requireAdminAuth, (req, res) => {
       const existing = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
 
       if (!existing) {
-        if (req.file) deleteLocalImage(`/uploads/${req.file.filename}`);
         return res.status(404).json({ error: `Product with ID '${id}' not found.` });
       }
 
@@ -148,25 +153,19 @@ router.put('/:id', requireAdminAuth, (req, res) => {
         weight = existing.weight,
         willowType = existing.willowType,
         availability = existing.availability,
+        image,
         removeImage
       } = req.body || {};
 
       const cleanName = sanitizeText(name);
       const cleanBrand = sanitizeText(brand);
 
-      if (!cleanName) {
-        if (req.file) deleteLocalImage(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ error: 'Product name cannot be empty.' });
-      }
-      if (!cleanBrand) {
-        if (req.file) deleteLocalImage(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ error: 'Brand cannot be empty.' });
-      }
+      if (!cleanName) return res.status(400).json({ error: 'Product name cannot be empty.' });
+      if (!cleanBrand) return res.status(400).json({ error: 'Brand cannot be empty.' });
 
       const numPrice = Number(price);
-      if (isNaN(numPrice) || numPrice < 0 || numPrice > 500000) {
-        if (req.file) deleteLocalImage(`/uploads/${req.file.filename}`);
-        return res.status(400).json({ error: 'Please enter a valid price between ₹0 and ₹5,00,000.' });
+      if (isNaN(numPrice) || numPrice < 0) {
+        return res.status(400).json({ error: 'Valid price required.' });
       }
 
       const allowedWillow = ['English Willow', 'Kashmir Willow'];
@@ -175,16 +174,25 @@ router.put('/:id', requireAdminAuth, (req, res) => {
       const allowedStock = ['In Stock', 'Out of Stock'];
       const validatedStock = allowedStock.includes(availability) ? availability : existing.availability;
 
-      let imagePath = existing.image;
-      if (req.file) {
+      let finalImage = existing.image;
+
+      // 1. Direct Base64 database image update
+      if (typeof image === 'string' && image.startsWith('data:image/')) {
         deleteLocalImage(existing.image);
-        imagePath = `/uploads/${req.file.filename}`;
-      } else if (removeImage === 'true' || removeImage === true) {
+        finalImage = image; // Stored directly in the database row forever!
+      }
+      // 2. Multipart file upload
+      else if (req.file) {
         deleteLocalImage(existing.image);
-        imagePath = '';
+        finalImage = `/uploads/${req.file.filename}`;
+      }
+      // 3. Explicit removal
+      else if (removeImage === 'true' || removeImage === true) {
+        deleteLocalImage(existing.image);
+        finalImage = '';
       }
 
-      if (!isSafeImagePath(imagePath)) {
+      if (!isSafeImagePath(finalImage)) {
         return res.status(400).json({ error: 'Invalid image path.' });
       }
 
@@ -202,20 +210,19 @@ router.put('/:id', requireAdminAuth, (req, res) => {
         sanitizeText(weight).slice(0, 30),
         validatedWillow,
         validatedStock,
-        imagePath,
+        finalImage,
         id
       );
 
       const updated = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
       res.status(200).json({ message: 'Product updated successfully', product: updated });
     } catch (error) {
-      if (req.file) deleteLocalImage(`/uploads/${req.file.filename}`);
       res.status(500).json({ error: 'Failed to update product: ' + error.message });
     }
   });
 });
 
-// DELETE product (Protected by requireAdminAuth)
+// DELETE product (Protected)
 router.delete('/:id', requireAdminAuth, (req, res) => {
   try {
     const { id } = req.params;
