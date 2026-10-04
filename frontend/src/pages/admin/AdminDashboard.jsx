@@ -11,7 +11,6 @@ function AdminDashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  // System Health Monitor
   const [apiHealth, setApiHealth] = useState({ status: 'loading', message: 'Checking API...' });
 
   const [formData, setFormData] = useState({
@@ -33,7 +32,18 @@ function AdminDashboard() {
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Fetch all products
+  // Helper to fetch stored authentication token
+  const getAuthHeader = () => {
+    const token = localStorage.getItem('adminToken');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  };
+
+  const handleAuthError = () => {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    navigate('/admin/login');
+  };
+
   const fetchProducts = () => {
     fetch('/api/products')
       .then((res) => (res.ok ? res.json() : []))
@@ -44,7 +54,6 @@ function AdminDashboard() {
       .catch(() => setLoading(false));
   };
 
-  // Monitor backend health
   const checkHealth = () => {
     fetch('/api/health')
       .then((res) => {
@@ -66,11 +75,9 @@ function AdminDashboard() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/admin/logout', { method: 'POST' });
+      await fetch('/api/admin/logout', { method: 'POST', headers: getAuthHeader() });
     } catch {}
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
-    navigate('/admin/login');
+    handleAuthError();
   };
 
   const handleOpenAdd = () => {
@@ -175,14 +182,24 @@ function AdminDashboard() {
     const method = isEditing ? 'PUT' : 'POST';
 
     try {
-      const response = await fetch(url, { method, body: data });
-      const text = await response.text();
+      const response = await fetch(url, {
+        method,
+        headers: getAuthHeader(), // Attached Bearer Token
+        body: data
+      });
 
+      if (response.status === 401 || response.status === 403) {
+        alert('Your admin session has expired. Please log in again.');
+        handleAuthError();
+        return;
+      }
+
+      const text = await response.text();
       let resJson = {};
       try {
         resJson = text ? JSON.parse(text) : {};
       } catch {
-        throw new Error(text.includes('<pre>') ? text.replace(/<[^>]*>?/gm, '') : 'Server error occurred.');
+        throw new Error('Server error occurred.');
       }
 
       if (!response.ok) {
@@ -202,7 +219,17 @@ function AdminDashboard() {
     if (!window.confirm(`Are you sure you want to delete "${name}"?`)) return;
 
     try {
-      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeader() // Attached Bearer Token
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        alert('Your admin session has expired. Please log in again.');
+        handleAuthError();
+        return;
+      }
+
       const text = await res.text();
       let resJson = {};
       try {
@@ -254,9 +281,8 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* 2. Top Summary Stat Cards & System Telemetry */}
+      {/* 2. Top Summary Stat Cards */}
       <div className="admin-stats-summary" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-        {/* Card 1: Total Bats */}
         <div className="admin-stat-item">
           <div className="admin-stat-icon-box">🏏</div>
           <div className="admin-stat-details">
@@ -265,7 +291,6 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* Card 2: In Stock */}
         <div className="admin-stat-item">
           <div className="admin-stat-icon-box">✅</div>
           <div className="admin-stat-details">
@@ -274,7 +299,6 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* Card 3: Storage Engine */}
         <div className="admin-stat-item">
           <div className="admin-stat-icon-box">💾</div>
           <div className="admin-stat-details">
@@ -285,7 +309,6 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* Card 4: Backend Link Status Telemetry */}
         <div className="admin-stat-item">
           <div className="admin-stat-icon-box">
             {apiHealth.status === 'ok' ? '🟢' : apiHealth.status === 'error' ? '🔴' : '🟡'}
@@ -450,6 +473,7 @@ function AdminDashboard() {
                   <input
                     type="text"
                     required
+                    maxLength="100"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g. SS Master 7000"
@@ -460,6 +484,7 @@ function AdminDashboard() {
                   <input
                     type="text"
                     required
+                    maxLength="50"
                     value={formData.brand}
                     onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
                     placeholder="e.g. SS, MRF, SG, Kookaburra"
@@ -474,6 +499,7 @@ function AdminDashboard() {
                     type="number"
                     required
                     min="0"
+                    max="500000"
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     placeholder="e.g. 15499"
@@ -496,6 +522,7 @@ function AdminDashboard() {
                   <label>Weight</label>
                   <input
                     type="text"
+                    maxLength="30"
                     value={formData.weight}
                     onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
                     placeholder="e.g. 1180g - 1200g"
@@ -558,6 +585,7 @@ function AdminDashboard() {
                 <label>Short Description</label>
                 <input
                   type="text"
+                  maxLength="300"
                   value={formData.shortDescription}
                   onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
                   placeholder="Summary for product cards and previews"
@@ -568,6 +596,7 @@ function AdminDashboard() {
                 <label>Full Description</label>
                 <textarea
                   rows="3"
+                  maxLength="3000"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Grain details, spine profile, edge thickness, handle type..."

@@ -1,10 +1,12 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import db from '../db.js';
+import { generateAdminToken } from '../middleware/auth.js';
+import { loginRateLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
-router.post('/login', (req, res) => {
+router.post('/login', loginRateLimiter, (req, res) => {
   try {
     const { username, password } = req.body || {};
 
@@ -12,7 +14,7 @@ router.post('/login', (req, res) => {
       return res.status(400).json({ error: 'Username and password are required.' });
     }
 
-    const trimmedUser = String(username).trim();
+    const trimmedUser = String(username).trim().slice(0, 50);
     const admin = db.prepare('SELECT * FROM admins WHERE username = ?').get(trimmedUser);
 
     if (!admin) {
@@ -21,19 +23,17 @@ router.post('/login', (req, res) => {
 
     let isMatch = false;
 
-    // 1. Try standard bcrypt comparison
     try {
       if (admin.password && admin.password.startsWith('$2')) {
         isMatch = bcrypt.compareSync(String(password), admin.password);
       }
     } catch (bcryptErr) {
-      console.warn('Bcrypt check error, checking fallback:', bcryptErr.message);
+      console.warn('Bcrypt check error:', bcryptErr.message);
     }
 
-    // 2. Fallback check (in case password was stored as plain text "admin123")
+    // Fallback upgrade for legacy plain-text password
     if (!isMatch && admin.password === String(password)) {
       isMatch = true;
-      // Automatically upgrade stored password to a secure hash
       const newHash = bcrypt.hashSync(String(password), 10);
       db.prepare('UPDATE admins SET password = ? WHERE id = ?').run(newHash, admin.id);
     }
@@ -42,8 +42,8 @@ router.post('/login', (req, res) => {
       return res.status(401).json({ error: 'Invalid username or password.' });
     }
 
-    const token = `admin-token-${Date.now()}`;
-    console.log(`Admin login successful: "${admin.username}"`);
+    // Issue cryptographically signed token with 24-hour expiration
+    const token = generateAdminToken(admin.username);
 
     return res.status(200).json({
       success: true,
@@ -52,8 +52,8 @@ router.post('/login', (req, res) => {
       username: admin.username
     });
   } catch (error) {
-    console.error('Login error:', error);
-    return res.status(500).json({ error: 'Server authentication error: ' + error.message });
+    console.error('Login error:', error.message);
+    return res.status(500).json({ error: 'Authentication service temporarily unavailable.' });
   }
 });
 
