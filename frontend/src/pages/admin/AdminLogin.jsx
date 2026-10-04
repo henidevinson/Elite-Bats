@@ -75,7 +75,7 @@ function AdminLogin() {
               className="form-input"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. admin"
+              placeholder="Username"
               autoComplete="username"
               required
             />
@@ -89,7 +89,7 @@ function AdminLogin() {
               className="form-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Password"
               autoComplete="current-password"
               required
             />
@@ -99,11 +99,6 @@ function AdminLogin() {
             {loading ? 'Authenticating...' : 'Sign In to Dashboard'}
           </button>
         </form>
-
-        <div className="demo-credentials-note">
-          <p><strong>Demo Credentials for Evaluation:</strong></p>
-          <p>Username: <code>admin</code> &bull; Password: <code>admin123</code></p>
-        </div>
       </div>
     </div>
   );

@@ -12,21 +12,18 @@
       <stop offset="100%" stop-color="#bf360c"/>
     </linearGradient>
   </defs>
-  <!-- Handle -->
   <rect x="73" y="20" width="14" height="150" rx="7" fill="url(#orangeGrip)"/>
   <rect x="71" y="155" width="18" height="18" rx="3" fill="#111827"/>
   <line x1="73" y1="40" x2="87" y2="40" stroke="#fff" stroke-width="1.5" opacity="0.6"/>
   <line x1="73" y1="70" x2="87" y2="70" stroke="#fff" stroke-width="1.5" opacity="0.6"/>
   <line x1="73" y1="100" x2="87" y2="100" stroke="#fff" stroke-width="1.5" opacity="0.6"/>
   <line x1="73" y1="130" x2="87" y2="130" stroke="#fff" stroke-width="1.5" opacity="0.6"/>
-  <!-- Blade -->
   <path d="M68 170 C68 170, 52 205, 50 250 L48 475 C48 495, 60 505, 80 505 C100 505, 112 495, 112 475 L110 250 C108 205, 92 170, 92 170 Z" fill="url(#dscGrad)" stroke="#b88a57" stroke-width="2"/>
   <line x1="62" y1="210" x2="61" y2="495" stroke="#9c6d3b" stroke-width="1" opacity="0.5"/>
   <line x1="72" y1="195" x2="71" y2="500" stroke="#9c6d3b" stroke-width="1" opacity="0.5"/>
   <line x1="82" y1="185" x2="81" y2="503" stroke="#9c6d3b" stroke-width="1" opacity="0.5"/>
   <line x1="92" y1="195" x2="91" y2="500" stroke="#9c6d3b" stroke-width="1" opacity="0.5"/>
   <line x1="100" y1="210" x2="99" y2="495" stroke="#9c6d3b" stroke-width="1" opacity="0.5"/>
-  <!-- DSC Decal -->
   <rect x="60" y="240" width="40" height="60" rx="4" fill="#ff6d00" stroke="#111827" stroke-width="1.5"/>
   <text x="80" y="268" font-family="sans-serif" font-weight="900" font-size="16" fill="#111827" text-anchor="middle">DSC</text>
   <text x="80" y="286" font-family="sans-serif" font-weight="800" font-size="8" fill="#ffffff" text-anchor="middle">KRUNCH 5.0</text>
